@@ -1,6 +1,6 @@
 [project]
 name = "tornadochildd"
-version = "0.1.0"
+version = "0.1.1"
 description = "Add your description here"
 readme = "README.md"
 authors = [
@@ -13,7 +13,8 @@ dependencies = []
 module-name = "tornadochildd._core"
 python-packages = ["tornadochildd"]
 python-source = "src"
-
+compatibility = "pypi"
+auditwheel = "repair"
 [tool.uv]
 cache-keys = [{ file = "pyproject.toml" }, { file = "src/**/*.rs" }, { file = "Cargo.toml" }, { file = "Cargo.lock" }]
 
