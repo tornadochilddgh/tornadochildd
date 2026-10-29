@@ -144,3 +144,78 @@ class LinearRegression:
         fig.tight_layout()
         plt.show()
         return fig
+
+
+class CauchyRegression:
+    def __init__(self, learning_rate=0.01, epochs=10000, c=1.0):
+        self.learning_rate = learning_rate
+        self.epochs = epochs
+        self.c = c
+        self.loss_history = []
+        self.coef_ = None
+
+    def loss_function(self, y_pred, y):
+        return (
+            self.c**2 / 2
+            * torch.log1p(((y - y_pred) / self.c) ** 2)
+        ).mean()
+
+    def fit(self, X, y):
+        X = np.asarray(X, dtype=np.float64)
+        y = np.asarray(y, dtype=np.float64).reshape(-1)
+
+        if X.ndim != 2 or X.shape[0] != len(y) or len(y) == 0:
+            raise ValueError("X and y must have matching, nonempty samples.")
+
+        self.x_mean = X.mean(axis=0)
+        self.x_scale = X.std(axis=0)
+        self.x_scale[self.x_scale == 0] = 1.0
+
+        X_scaled = (X - self.x_mean) / self.x_scale
+        X_tensor = torch.tensor(X_scaled, dtype=torch.float64)
+        y_tensor = torch.tensor(y, dtype=torch.float64)
+
+        self.weights = torch.zeros(
+            X.shape[1], dtype=torch.float64, requires_grad=True
+        )
+        self.bias = torch.tensor(
+            y.mean(), dtype=torch.float64, requires_grad=True
+        )
+
+        optimizer = torch.optim.Adam(
+            [self.weights, self.bias],
+            lr=self.learning_rate,
+        )
+
+        self.loss_history = []
+
+        for epoch in range(self.epochs):
+            optimizer.zero_grad()
+
+            y_pred = self.bias + X_tensor @ self.weights
+            loss = self.loss_function(y_pred, y_tensor)
+
+            loss.backward()
+            optimizer.step()
+
+            with torch.no_grad():
+                updated_predictions = self.bias + X_tensor @ self.weights
+                updated_loss = self.loss_function(
+                    updated_predictions, y_tensor
+                )
+                self.loss_history.append(updated_loss.item())
+
+        self.coef_ = self.weights.detach().numpy() / self.x_scale
+        self.intercept_ = float(
+            self.bias.item() - self.x_mean @ self.coef_
+        )
+        self.final_loss_ = self.loss_history[-1]
+
+        return self
+
+    def predict(self, X):
+        if self.coef_ is None:
+            raise ValueError("Call fit before predict.")
+
+        X = np.asarray(X, dtype=np.float64)
+        return self.intercept_ + X @ self.coef_
