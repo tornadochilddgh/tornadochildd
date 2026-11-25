@@ -1,21 +1,23 @@
 [project]
 name = "tornadochildd"
-version = "0.1.7"
+version = "0.1.8"
 description = "Add your description here"
 readme = "README.md"
 authors = [
     { name = "tornadochildd", email = "tornadochildd@gmail.com" }
 ]
 requires-python = ">=3.12"
-ddependencies = [
+dependencies = [
     "matplotlib>=3.8",
     "numpy>=1.26",
+    "onnx",
+    "onnxruntime",
     "openpyxl>=3.1",
     "pandas>=2.2",
     "scikit-learn>=1.4",
     "seaborn>=0.13",
     "statsmodels>=0.14",
-    "torch>=2.2",
+    "torch>=2.6",
 ]
 
 [tool.maturin]
